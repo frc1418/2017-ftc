@@ -20,6 +20,7 @@ public class MecanumOpMode extends OpMode
     MecanumDrive mecanum;
 
     DcMotor intake;
+    DcMotor launcher;
 
     ServoController servoController;
     NormalServo rightPuncher;
@@ -34,6 +35,7 @@ public class MecanumOpMode extends OpMode
         DcMotor rr_motor = hardwareMap.dcMotor.get("motor_rr");
 
         intake = hardwareMap.dcMotor.get("intake");
+        launcher = hardwareMap.dcMotor.get("launcher");
 
         fl_motor.setDirection(DcMotor.Direction.REVERSE);
         rl_motor.setDirection(DcMotor.Direction.REVERSE);
@@ -66,6 +68,12 @@ public class MecanumOpMode extends OpMode
             rightPuncher.setLocation(1);
         }else{
             rightPuncher.setLocation(0);
+        }
+
+        if (this.gamepad1.x){
+            launcher.setPower(1);
+        }else{
+            launcher.setPower(0);
         }
 
         if(this.gamepad1.right_trigger > 0.1){
