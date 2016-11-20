@@ -109,7 +109,6 @@ public class MecanumOpMode extends OpMode
             intake.setPower(0);
         }
 
-        telemetry.addData("Mecanum Speeds", mecanum.getSpeedString());
         telemetry.addData("Gyro Heading", gyro.getHeading());
         telemetry.addData("Forward Dist", forward_dist.getRawLightDetected());
         telemetry.addData("Back Dist", back_dist.getRawLightDetected());
