@@ -38,9 +38,12 @@ public class StatefulAutonomous extends MecanumOpMode{
         for(Method method : this.getClass().getDeclaredMethods()){
             State state = method.getAnnotation(State.class);
             if(state.first()){
+                if(hasFirst){
+                    throw new RuntimeException("Multiple first states declared");
+                }
+
                 currentState = method;
                 hasFirst = true;
-                break;
             }
         }
 
@@ -87,7 +90,7 @@ public class StatefulAutonomous extends MecanumOpMode{
         try {
             currentState = this.getClass().getDeclaredMethod(nextState);
         }catch (NoSuchMethodException e){
-            e.printStackTrace();
+            throw new RuntimeException("No next state:"+nextState);
         }
         firstLoop = true;
     }
