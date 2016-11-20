@@ -2,16 +2,16 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
-<<<<<<< Updated upstream
-=======
 import com.qualcomm.robotcore.hardware.ServoController;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
->>>>>>> Stashed changes
+import com.qualcomm.robotcore.hardware.ServoController;
 
 import org.firstinspires.ftc.teamcode.components.MecanumDrive;
 import org.firstinspires.ftc.teamcode.components.Component;
+import org.firstinspires.ftc.teamcode.components.NormalServo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,6 @@ public class MecanumOpMode extends OpMode
     public List<Component> components = new ArrayList<Component>();
 
     MecanumDrive mecanum;
-
 
     DcMotor intake;
     DcMotor launcher;
@@ -43,9 +42,11 @@ public class MecanumOpMode extends OpMode
         DcMotor rl_motor = hardwareMap.dcMotor.get("motor_rl");
         DcMotor rr_motor = hardwareMap.dcMotor.get("motor_rr");
 
+        intake = hardwareMap.dcMotor.get("intake");
+        launcher = hardwareMap.dcMotor.get("launcher");
+
         fl_motor.setDirection(DcMotor.Direction.REVERSE);
         rl_motor.setDirection(DcMotor.Direction.REVERSE);
-        rr_motor.setDirection(DcMotor.Direction.REVERSE);
 
         mecanum = new MecanumDrive(fl_motor, fr_motor, rl_motor, rr_motor);
 
@@ -71,6 +72,8 @@ public class MecanumOpMode extends OpMode
 
         //ADD ALL COMPONENTS
         components.add(mecanum);
+        components.add(rightPuncher);
+        components.add(leftPuncher);
     }
 
     public void loop()

@@ -18,10 +18,17 @@ public class MecanumDrive implements Component{
         double xIn = x;
         double yIn = -y;
 
-        fl_speed = xIn + yIn - rotation;
+        fl_speed = xIn + yIn + rotation;
         fr_speed = -xIn + yIn - rotation;
         rl_speed = -xIn + yIn + rotation;
-        rr_speed = xIn + yIn + rotation;
+        rr_speed = xIn + yIn - rotation;
+
+        /*
+        wheelSpeeds[self.MotorType.kFrontLeft] = xIn + yIn + rotation
+        wheelSpeeds[self.MotorType.kFrontRight] = -xIn + yIn - rotation
+        wheelSpeeds[self.MotorType.kRearLeft] = -xIn + yIn + rotation
+        wheelSpeeds[self.MotorType.kRearRight] = xIn + yIn - rotation
+        */
 
         double max = 1;
         max = Math.max(max,fl_speed);
