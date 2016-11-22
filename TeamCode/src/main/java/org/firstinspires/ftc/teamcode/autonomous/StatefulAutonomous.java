@@ -54,6 +54,7 @@ public class StatefulAutonomous extends MecanumOpMode{
 
     @Override
     public void loop() {
+        telemetry.addData("Current State", currentState.getName());
         if(firstLoop){
             firstLoop = false;
             if(currentState.getAnnotation(State.class).timed()){
@@ -73,6 +74,7 @@ public class StatefulAutonomous extends MecanumOpMode{
             }
         }else{
             try{
+                telemetry.addData("Invoked",currentState.getName());
                 currentState.invoke(this);
             }catch(IllegalAccessException e) {
                 e.printStackTrace();
@@ -84,13 +86,14 @@ public class StatefulAutonomous extends MecanumOpMode{
         for (Component c : components){
             c.doit();
         }
+        telemetry.addData("Mecanum", this.mecanum.getDataString());
     }
 
     protected void setNextState(String nextState){
         try {
             currentState = this.getClass().getDeclaredMethod(nextState);
         }catch (NoSuchMethodException e){
-            throw new RuntimeException("No next state:"+nextState);
+            throw new RuntimeException("No next state: "+nextState);
         }
         firstLoop = true;
     }

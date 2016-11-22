@@ -21,7 +21,7 @@ public class MecanumOpMode extends OpMode
 {
     public List<Component> components = new ArrayList<Component>();
 
-    MecanumDrive mecanum;
+    protected MecanumDrive mecanum;
 
     DcMotor intake;
     DcMotor launcher;
@@ -30,12 +30,26 @@ public class MecanumOpMode extends OpMode
     NormalServo rightPuncher;
     NormalServo leftPuncher;
 
-    private GyroSensor gyro;
+    protected GyroSensor gyro;
     private OpticalDistanceSensor forward_dist;
     private OpticalDistanceSensor back_dist;
 
+    //Gryo Strafe
+    private int maintainHeading;
+    private boolean headingSet = false;
+
     public void init()
     {
+        //SENSORS
+        gyro = hardwareMap.gyroSensor.get("gyro");
+        gyro.calibrate();
+
+        forward_dist = hardwareMap.opticalDistanceSensor.get("back_dist");
+        forward_dist.enableLed(true);
+
+        back_dist = hardwareMap.opticalDistanceSensor.get("forward_dist");
+        back_dist.enableLed(true);
+
         //DRIVING
         DcMotor fl_motor = hardwareMap.dcMotor.get("motor_fl");
         DcMotor fr_motor = hardwareMap.dcMotor.get("motor_fr");
@@ -48,7 +62,7 @@ public class MecanumOpMode extends OpMode
         fl_motor.setDirection(DcMotor.Direction.REVERSE);
         rl_motor.setDirection(DcMotor.Direction.REVERSE);
 
-        mecanum = new MecanumDrive(fl_motor, fr_motor, rl_motor, rr_motor);
+        mecanum = new MecanumDrive(fl_motor, fr_motor, rl_motor, rr_motor, gyro);
 
         //AUX MOTORS
         intake = hardwareMap.dcMotor.get("intake");
@@ -61,15 +75,6 @@ public class MecanumOpMode extends OpMode
         rightPuncher = new NormalServo(servoController, 1);
         leftPuncher = new NormalServo(servoController, 2);
 
-        //SENSORS
-        gyro = hardwareMap.gyroSensor.get("gyro");
-        gyro.calibrate();
-
-        forward_dist = hardwareMap.opticalDistanceSensor.get("back_dist");
-        forward_dist.enableLed(true);
-        back_dist = hardwareMap.opticalDistanceSensor.get("forward_dist");
-        back_dist.enableLed(true);
-
         //ADD ALL COMPONENTS
         components.add(mecanum);
         components.add(rightPuncher);
@@ -78,8 +83,30 @@ public class MecanumOpMode extends OpMode
 
     public void loop()
     {
+        //Joystick Movement
         mecanum.move(this.gamepad1.left_stick_x, this.gamepad1.left_stick_y, this.gamepad1.right_stick_x);
 
+        //Gyro Assisted Strafing
+        if(this.gamepad1.dpad_left || this.gamepad1.dpad_right){
+            if(!headingSet){
+                maintainHeading = gyro.getHeading();
+                headingSet = true;
+            }
+
+            if(gamepad1.dpad_right){
+                mecanum.move(1, 0, 0);
+            }else{
+                mecanum.move(-1, 0, 0);
+            }
+
+            mecanum.angleRotation(maintainHeading);
+        }else{
+            if(headingSet){
+                headingSet = false;
+            }
+        }
+
+        //Punchers
         if(this.gamepad1.left_bumper){
             leftPuncher.setLocation(1);
         }else{
@@ -93,6 +120,7 @@ public class MecanumOpMode extends OpMode
             rightPuncher.setLocation(0);
         }
 
+        //Launcher
         if (this.gamepad1.x){
             launcher.setPower(1);
         }else if(this.gamepad1.y){
@@ -101,6 +129,7 @@ public class MecanumOpMode extends OpMode
             launcher.setPower(0);
         }
 
+        //Intake / Outake
         if(this.gamepad1.right_trigger > 0.1){
             intake.setPower(this.gamepad1.right_trigger);
         }else if(this.gamepad1.left_trigger > 0.1){
@@ -109,13 +138,21 @@ public class MecanumOpMode extends OpMode
             intake.setPower(0);
         }
 
-        telemetry.addData("Gyro Heading", gyro.getHeading());
-        telemetry.addData("Forward Dist", forward_dist.getRawLightDetected());
-        telemetry.addData("Back Dist", back_dist.getRawLightDetected());
-
+        //Components
         for (Component component : components)
         {
             component.doit();
         }
+
+        //Push data
+        pushTelemetry();
+    }
+
+    public void pushTelemetry(){
+        telemetry.addData("Gyro Heading", gyro.getHeading());
+        telemetry.addData("Maintain Heading", maintainHeading);
+        telemetry.addData("Forward Dist", forward_dist.getRawLightDetected());
+        telemetry.addData("Back Dist", back_dist.getRawLightDetected());
+        telemetry.addData("Drive Data",mecanum.getDataString());
     }
 }

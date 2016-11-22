@@ -12,6 +12,8 @@ public class MecanumDrive implements Component{
     private double angleConstant = 0.04;
     private double angleMax = 0.3;
 
+    private String dataString;
+
     public MecanumDrive(DcMotor fl_motor, DcMotor fr_motor, DcMotor rl_motor, DcMotor rr_motor){
         this.fl_motor = fl_motor;
         this.fr_motor = fr_motor;
@@ -62,6 +64,16 @@ public class MecanumDrive implements Component{
         }
     }
 
+    public boolean onAngle(int angle){
+        int dist = angle - gyro.getHeading();
+
+        return Math.abs(dist) <= 2;
+    }
+
+    public String getDataString(){
+        return dataString;
+    }
+
     public void doit(){
         double fl_speed = x + y + rotation;
         double fr_speed = -x + y - rotation;
@@ -85,6 +97,9 @@ public class MecanumDrive implements Component{
         fr_motor.setPower(fr_speed);
         rl_motor.setPower(rl_speed);
         rr_motor.setPower(rr_speed);
+
+        //lastSpeeds = "fl: "+fl_speed+" fr: "+fr_speed+" rl: "+rl_speed+" rr: "+rr_speed;
+        dataString = "x: "+x+" y: "+y+" rot: "+rotation;
 
         x = 0; y = 0; rotation =0;
     }
